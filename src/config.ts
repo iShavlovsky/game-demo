@@ -38,7 +38,7 @@ export const xsollaZkChain = defineChain({
 
 export const supportedChains = [zksyncSepoliaTestnet, zksyncInMemoryNode, xsollaZkChain];
 
-export const defaultChainId: SupportedChainId = zksyncInMemoryNode.id;
+export const defaultChainId: SupportedChainId = import.meta.env.VITE_CHAIN_DEFAULT == 260 ? zksyncInMemoryNode.id : xsollaZkChain.id;
 export type SupportedChains = typeof supportedChains[number];
 export type SupportedChainId = (typeof supportedChains)[number]['id'];
 
@@ -46,7 +46,7 @@ export const zksyncConnectorWithSession = zksyncSsoConnector({
     metadata: {
         name: 'Super Game'
     },
-    authServerUrl: import.meta.env.VITE_API_AUTH_SERVER_URL,
+    authServerUrl: import.meta.env.VITE_AUTH_SERVER_URL,
     session: {
         feeLimit: parseEther('0.1'),
         transfers: [
@@ -61,7 +61,7 @@ export const zksyncConnector = zksyncSsoConnector({
     metadata: {
         name: 'Super Game'
     },
-    authServerUrl: import.meta.env.VITE_API_AUTH_SERVER_URL
+    authServerUrl: import.meta.env.VITE_AUTH_SERVER_URL
 });
 
 export const config = createConfig({

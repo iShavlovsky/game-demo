@@ -81,10 +81,9 @@
 import { GameControllerOutline, Unlink, WalletOutline } from '@vicons/ionicons5';
 import { useConnect, useDisconnect } from '@wagmi/vue';
 import { NIcon, useMessage } from 'naive-ui';
-import { zksyncInMemoryNode } from 'viem/chains';
 
 import Balance from '@/components/Balance.vue';
-import { zksyncConnector, zksyncConnectorWithSession } from '@/config.ts';
+import { defaultChainId, zksyncConnector, zksyncConnectorWithSession } from '@/config.ts';
 import { useMainStore } from '@/stores';
 
 const store = useMainStore();
@@ -97,7 +96,7 @@ const connectWallet = async (useSession: boolean) => {
     try {
         connect({
             connector: useSession ? zksyncConnectorWithSession : zksyncConnector,
-            chainId: zksyncInMemoryNode.id
+            chainId: defaultChainId
         });
         message.success('Connect to wallet.');
     }
