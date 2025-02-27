@@ -46,7 +46,7 @@ export const zksyncConnectorWithSession = zksyncSsoConnector({
     metadata: {
         name: 'Super Game'
     },
-    authServerUrl: 'https://localhost:5173/wallet-demo/login',
+    authServerUrl: import.meta.env.VITE_API_AUTH_SERVER_URL,
     session: {
         feeLimit: parseEther('0.1'),
         transfers: [
@@ -61,7 +61,7 @@ export const zksyncConnector = zksyncSsoConnector({
     metadata: {
         name: 'Super Game'
     },
-    authServerUrl: 'https://localhost:5173/wallet-demo/login'
+    authServerUrl: import.meta.env.VITE_API_AUTH_SERVER_URL
 });
 
 export const config = createConfig({
