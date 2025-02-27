@@ -1,0 +1,60 @@
+{
+  "extends": "@vue/tsconfig/tsconfig.json",
+  "include": [
+    "env.d.ts",
+    "src/**/*",
+    "src/**/*.vue",
+    "src/**/*.ts",
+    "src/types/*.d.ts",
+    "src/**/*.d.ts",
+    "src/**/*.tsx",
+    "./auto-imports.d.ts"
+  ],
+  "exclude": ["src/**/__tests__/*"],
+  "compilerOptions": {
+    "composite": true,
+    "baseUrl": ".",
+    "paths": {
+      "~/*": [
+        "./*"
+      ],
+      "@/*": [
+        "./src/*"
+      ]
+    },
+    /* Bundler mode */
+    "moduleResolution": "node",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "preserve",
+    "experimentalDecorators": true,
+    "target": "esnext",
+    "module": "esnext",
+    "lib": [
+      "ESNext",
+      "DOM",
+      "DOM.Iterable",
+      "WebWorker",
+      "ScriptHost",
+      "WebWorker.ImportScripts",
+      "Webworker.Iterable"
+    ],
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "emitDecoratorMetadata": true,
+    "allowJs": true,
+    "importHelpers": true,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitThis": true,
+    "sourceMap": true,
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "types": ["naive-ui/volar"]
+  }
+}
