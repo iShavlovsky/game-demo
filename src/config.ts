@@ -43,6 +43,9 @@ export type SupportedChains = typeof supportedChains[number];
 export type SupportedChainId = (typeof supportedChains)[number]['id'];
 
 export const zksyncConnectorWithSession = zksyncSsoConnector({
+    metadata: {
+        name: 'Super Game'
+    },
     authServerUrl: 'https://localhost:5173/wallet-demo/login',
     session: {
         feeLimit: parseEther('0.1'),
@@ -55,6 +58,9 @@ export const zksyncConnectorWithSession = zksyncSsoConnector({
     }
 });
 export const zksyncConnector = zksyncSsoConnector({
+    metadata: {
+        name: 'Super Game'
+    },
     authServerUrl: 'https://localhost:5173/wallet-demo/login'
 });
 

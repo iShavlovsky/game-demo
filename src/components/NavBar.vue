@@ -99,15 +99,12 @@ const connectWallet = async (useSession: boolean) => {
             connector: useSession ? zksyncConnectorWithSession : zksyncConnector,
             chainId: zksyncInMemoryNode.id
         });
+        message.success('Connect to wallet.');
     }
     catch (error) {
         message.warning('Connect failed, see console for more info.');
         console.error('Connection failed:', error);
     }
-};
-
-const disconnectWallet = () => {
-    disconnect();
 };
 
 const renderIcon = (base: string | undefined) => {
