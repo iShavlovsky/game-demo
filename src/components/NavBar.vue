@@ -81,9 +81,12 @@
 import { GameControllerOutline, Unlink, WalletOutline } from '@vicons/ionicons5';
 import { useConnect, useDisconnect } from '@wagmi/vue';
 import { NIcon, useMessage } from 'naive-ui';
+import { parseEther } from 'viem';
+import { onMounted } from 'vue';
+import { zksyncSsoConnector } from 'zksync-sso/connector';
 
 import Balance from '@/components/Balance.vue';
-import { defaultChainId, zksyncConnector, zksyncConnectorWithSession } from '@/config.ts';
+import { defaultChainId } from '@/config.ts';
 import { useMainStore } from '@/stores';
 
 const store = useMainStore();
@@ -92,10 +95,34 @@ const { disconnect } = useDisconnect();
 const { isConnected, address, chain } = store.getAccount();
 const message = useMessage();
 
+const getJWTTokenXsolla = () => {
+    return localStorage.getItem('xsolla_metaframe_token'); ;
+};
+
 const connectWallet = async (useSession: boolean) => {
     try {
         connect({
-            connector: useSession ? zksyncConnectorWithSession : zksyncConnector,
+            connector: zksyncSsoConnector({
+                metadata: {
+                    name: `Super Game token: ${getJWTTokenXsolla()}`
+                },
+                authServerUrl: import.meta.env.VITE_AUTH_SERVER_URL,
+                ...(useSession
+                    ? {
+                            session: {
+                                expiry: '5 min',
+                                feeLimit: parseEther('0.1'),
+                                transfers: [
+                                    {
+                                        to: '0x55bE1B079b53962746B2e86d12f158a41DF294A6',
+                                        valueLimit: parseEther('0.1')
+                                    }
+                                ]
+                            }
+                        }
+                    : undefined)
+
+            }),
             chainId: defaultChainId
         });
         message.success('Connect to wallet.');
@@ -126,6 +153,9 @@ const renderIcon = (base: string | undefined) => {
         };
     }
 };
+onMounted(() => {
+    getJWTTokenXsolla();
+});
 
 const options = computed(() => {
     return connectors.map(item => ({

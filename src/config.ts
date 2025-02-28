@@ -44,10 +44,11 @@ export type SupportedChainId = (typeof supportedChains)[number]['id'];
 
 export const zksyncConnectorWithSession = zksyncSsoConnector({
     metadata: {
-        name: 'Super Game'
+        name: `Super Game token`
     },
     authServerUrl: import.meta.env.VITE_AUTH_SERVER_URL,
     session: {
+        expiry: '5 min',
         feeLimit: parseEther('0.1'),
         transfers: [
             {
@@ -79,7 +80,6 @@ export const config = createConfig({
     connectors: [
         zksyncConnector
     ],
-
     ssr: false,
     syncConnectedChain: false,
     storage: createStorage({
