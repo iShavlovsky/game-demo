@@ -97,6 +97,30 @@ const darkThemeOverrides: GlobalThemeOverrides = {
 const lightThemeOverrides: GlobalThemeOverrides = {
     common: {}
 };
+
+onMounted(() => {
+    const script = document.createElement('script');
+    script.src = 'https://cdn.xsolla.net/metaframe-web-wallet-widget-prod/container/v1/metaframe.js';
+    script.async = true;
+    script.onload = () => {
+        window.metaframe?.create({
+            loginProjectId: 'd06e1fa0-4988-4105-af79-c00f1cd2787d',
+            merchantId: 765059,
+            projectId: 276169,
+            isMobile: false,
+            isCollapsed: true,
+            layoutSettings: {
+                desktop: {
+                    widgetMarginTop: 90
+                },
+                mobile: {
+                    widgetMarginTop: 72
+                }
+            }
+        });
+    };
+    document.head.appendChild(script);
+});
 </script>
 <style lang="scss" scoped>
 .main-content {

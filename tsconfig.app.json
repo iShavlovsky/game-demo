@@ -6,6 +6,8 @@
     "src/**/*.vue",
     "src/**/*.ts",
     "src/types/*.d.ts",
+    "./**/*.d.ts",
+    "./*.d.ts",
     "src/**/*.d.ts",
     "src/**/*.tsx",
     "./auto-imports.d.ts"
