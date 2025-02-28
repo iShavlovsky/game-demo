@@ -15,6 +15,17 @@
       </RouterLink>
       <div class="navbar-wallets-btns display-flex gap-8">
         <div class="nav-bar-wallet-btn-w display-flex flex-row align-items-center gap-16">
+          <a :href="`${authServerURL}`"
+             target="_blank"
+             v-if="isConnected"
+             class="display-flex flex-row align-items-center connect-wallet-green gap-4"
+             title="Open wallet">
+            <NIcon :component="WalletOutline"
+                   :depth="1"
+                   color="#92FE75" />
+            Open wallet
+          </a>
+
           <n-button v-if="isConnected"
                     :loading="isConnectPending"
                     class="connect-wallet-green"
@@ -78,7 +89,7 @@
   </header>
 </template>
 <script lang="ts" setup>
-import { GameControllerOutline, Unlink, WalletOutline } from '@vicons/ionicons5';
+import { GameControllerOutline, LogoYoutube, Unlink, WalletOutline } from '@vicons/ionicons5';
 import { useConnect, useDisconnect } from '@wagmi/vue';
 import { NIcon, useMessage } from 'naive-ui';
 import { parseEther } from 'viem';
@@ -95,6 +106,8 @@ const { disconnect } = useDisconnect();
 const { isConnected, address, chain } = store.getAccount();
 const message = useMessage();
 
+const authServerURL = import.meta.env.VITE_AUTH_SERVER_URL;
+
 const getJWTTokenXsolla = () => {
     return localStorage.getItem('xsolla_metaframe_token'); ;
 };
@@ -106,7 +119,7 @@ const connectWallet = async (useSession: boolean) => {
                 metadata: {
                     name: `Super Game token: ${getJWTTokenXsolla()}`
                 },
-                authServerUrl: import.meta.env.VITE_AUTH_SERVER_URL,
+                authServerUrl: authServerURL,
                 ...(useSession
                     ? {
                             session: {
