@@ -90,20 +90,21 @@
 </template>
 <script lang="ts" setup>
 import { GameControllerOutline, Unlink, WalletOutline } from '@vicons/ionicons5';
-import { useConnect, useDisconnect } from '@wagmi/vue';
+import { useAccount, useConnect, useDisconnect } from '@wagmi/vue';
 import { NIcon, useMessage } from 'naive-ui';
 import { parseEther } from 'viem';
 import { onMounted } from 'vue';
 import { zksyncSsoConnector } from 'zksync-sso/connector';
 
 import Balance from '@/components/Balance.vue';
+import { useMetaframe } from '@/composables/useMetaframe.ts';
 import { defaultChainId } from '@/config.ts';
 import { useMainStore } from '@/stores';
-
+const metaframe = useMetaframe();
 const store = useMainStore();
-const { connect, connectors, isPending: isConnectPending } = useConnect();
+const { connect, isPending: isConnectPending } = useConnect();
 const { disconnect } = useDisconnect();
-const { isConnected, address, chain } = store.getAccount();
+const { isConnected, address, chain } = useAccount();
 const message = useMessage();
 
 const authServerURL = import.meta.env.VITE_AUTH_SERVER_URL;
@@ -113,6 +114,11 @@ const getJWTTokenXsolla = () => {
 };
 
 const connectWallet = async (useSession: boolean) => {
+    const token = getJWTTokenXsolla();
+    if (!token) {
+        message.error('Not connected.');
+        return;
+    }
     try {
         connect({
             connector: zksyncSsoConnector({

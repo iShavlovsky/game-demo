@@ -16,6 +16,8 @@ declare module 'vue' {
     NFlex: typeof import('naive-ui')['NFlex']
     NGlobalStyle: typeof import('naive-ui')['NGlobalStyle']
     NH1: typeof import('naive-ui')['NH1']
+    NInput: typeof import('naive-ui')['NInput']
+    NInputNumber: typeof import('naive-ui')['NInputNumber']
     NMessageProvider: typeof import('naive-ui')['NMessageProvider']
     NResult: typeof import('naive-ui')['NResult']
     NSpin: typeof import('naive-ui')['NSpin']
