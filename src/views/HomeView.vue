@@ -75,12 +75,12 @@
 import { sendTransaction, waitForTransactionReceipt } from '@wagmi/core';
 import { useAccount } from '@wagmi/vue';
 import { useMessage } from 'naive-ui';
-import { createWalletClient, type Hash, http, parseEther } from 'viem';
+import { type Address, createWalletClient, type Hash, http, parseEther } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { getGeneralPaymasterInput } from 'viem/zksync';
 
 import { config, defaultChain } from '@/config.ts';
-const testTransferTarget = ref<string | null>('0x55bE1B079b53962746B2e86d12f158a41DF294A6');
+const testTransferTarget = ref<Address | null>('0x55bE1B079b53962746B2e86d12f158a41DF294A6');
 const value = ref<number>(0.1);
 const isLoad = ref<boolean>(false);
 const result = ref<Hash | null>(null);
@@ -176,6 +176,12 @@ const sendTokens = async (usePaymaster: boolean) => {
         message.error('The amount is too small.');
         return;
     }
+
+    if (!testTransferTarget.value) {
+        message.error('Address error');
+        return;
+    }
+
     errorMessage.value = '';
     isSendingEth.value = true;
 
