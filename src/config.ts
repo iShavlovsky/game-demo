@@ -38,6 +38,7 @@ export const xsollaZkChain = defineChain({
 
 export const supportedChains = [zksyncSepoliaTestnet, zksyncInMemoryNode, xsollaZkChain];
 
+export const defaultChain: SupportedChains = import.meta.env.VITE_CHAIN_DEFAULT == 260 ? zksyncInMemoryNode : xsollaZkChain;
 export const defaultChainId: SupportedChainId = import.meta.env.VITE_CHAIN_DEFAULT == 260 ? zksyncInMemoryNode.id : xsollaZkChain.id;
 export type SupportedChains = typeof supportedChains[number];
 export type SupportedChainId = (typeof supportedChains)[number]['id'];

@@ -89,7 +89,7 @@
   </header>
 </template>
 <script lang="ts" setup>
-import { GameControllerOutline, LogoYoutube, Unlink, WalletOutline } from '@vicons/ionicons5';
+import { GameControllerOutline, Unlink, WalletOutline } from '@vicons/ionicons5';
 import { useConnect, useDisconnect } from '@wagmi/vue';
 import { NIcon, useMessage } from 'naive-ui';
 import { parseEther } from 'viem';
@@ -146,36 +146,8 @@ const connectWallet = async (useSession: boolean) => {
     }
 };
 
-const renderIcon = (base: string | undefined) => {
-    if (base) {
-        return () => {
-            return h(NAvatar, {
-                size: 'small',
-                color: '#151518',
-                round: true,
-                style: 'margin: 4px; width: 24px; height: 24px;',
-                src: base
-            });
-        };
-    }
-    else {
-        return () => {
-            return h(NIcon, {
-                component: WalletOutline
-            });
-        };
-    }
-};
 onMounted(() => {
     getJWTTokenXsolla();
-});
-
-const options = computed(() => {
-    return connectors.map(item => ({
-        label: item.name,
-        key: item.name,
-        icon: renderIcon(item.icon)
-    }));
 });
 
 </script>
