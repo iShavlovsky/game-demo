@@ -114,11 +114,11 @@ const getJWTTokenXsolla = () => {
 };
 
 const connectWallet = async (useSession: boolean) => {
-    const token = getJWTTokenXsolla();
-    if (!token) {
-        message.error('Not connected.');
-        return;
-    }
+    // const token = getJWTTokenXsolla();
+    // if (!token) {
+    //     message.error('Not connected.');
+    //     return;
+    // }
     try {
         connect({
             connector: zksyncSsoConnector({
