@@ -4,17 +4,40 @@
       <n-flex vertical
               v-if="isConnected && address">
         <p>Home</p>
+        <n-button v-if="isConnected"
+                  :loading="isLoad"
+                  class="connect-wallet-green"
+                  @click="toSignMessage"
+                  round>
+          <template #icon>
+            <NIcon :component="Chatbubbles"
+                   :depth="1"
+                   color="#92FE75" />
+          </template>
+          Sign Message
+        </n-button>
+        <n-button v-if="isConnected"
+                  :loading="isLoad"
+                  class="connect-wallet-green"
+                  @click="toSignTypedData"
+                  round>
+          <template #icon>
+            <NIcon :component="Chatbubbles"
+                   :depth="1"
+                   color="#92FE75" />
+          </template>
+          Sign Typed Data
+        </n-button>
         <n-flex vertical
                 v-if="isConnected && address"
                 justify="center">
-          <n-input  :style="{ width: '75%' }"
-                    v-model:value="testTransferTarget"
-                    :loading="disabled"
-                    :disabled="disabled"
-                    placeholder="Address" />
+          <n-input v-model:value="testTransferTarget"
+                   :loading="disabled"
+                   :disabled="disabled"
+                   placeholder="Address" />
           <n-input-number round
                           :disabled="disabled"
-                          :style="{ width: '75%' }"
+
                           :step="0.01"
                           v-model:value="value"
                           :default-value="0.1"
@@ -29,13 +52,11 @@
                 justify="start">
           <n-button type="primary"
                     :disabled="disabled"
-                    :style="{ width: '36.5%' }"
                     @click="sendTokens(false)">
             Send {{value}} ETH
           </n-button>
           <n-button type="info"
                     :disabled="disabled"
-                    :style="{ width: '36.5%' }"
                     @click="sendTokens(true)">
             Send {{value}} ETH w/ Paymaster
           </n-button>
@@ -46,12 +67,13 @@
 
           <n-button type='default'
                     :disabled="disabled"
-                    :style="{ width: '75%' }"
+                    :style="{ width: 'auto', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }"
                     @click="fundAccount">
             Send Me {{value}} ETH to: {{address}}
           </n-button>
         </n-flex>
         <n-result v-if="result && isConnected && address"
+                  :style="{ width: 'auto', overflow: 'hidden', wordWrap: 'break-word' }"
                   status="success"
                   title="Success"
                   :description="result">
@@ -60,6 +82,7 @@
           </template>
         </n-result>
         <n-result v-if="isConnected && address && errorMessage"
+                  :style="{ width: 'auto', overflow: 'hidden', wordWrap: 'break-word' }"
                   status="error"
                   title="Error"
                   :description="errorMessage">
@@ -72,9 +95,10 @@
   </section>
 </template>
 <script lang="ts" setup>
-import { sendTransaction, waitForTransactionReceipt } from '@wagmi/core';
+import { Chatbubbles } from '@vicons/ionicons5';
+import { sendTransaction, signMessage, signTypedData, waitForTransactionReceipt } from '@wagmi/core';
 import { useAccount } from '@wagmi/vue';
-import { useMessage } from 'naive-ui';
+import { NIcon, useMessage } from 'naive-ui';
 import { type Address, createWalletClient, type Hash, http, parseEther } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { getGeneralPaymasterInput } from 'viem/zksync';
@@ -83,14 +107,56 @@ import { config, defaultChain } from '@/config.ts';
 const testTransferTarget = ref<Address | null>('0x55bE1B079b53962746B2e86d12f158a41DF294A6');
 const value = ref<number>(0.1);
 const isLoad = ref<boolean>(false);
-const result = ref<Hash | null>(null);
+const result = ref<Hash | string | null>(null);
 const errorMessage = ref<string | null>(null);
 const isSendingEth = ref<boolean>(false);
 
 const { isConnected, address } = useAccount();
 const message = useMessage();
 
+const singMessage = 'Welcome to Super Game!\n'
+    + '\n'
+    + `Click to sign in and accept terms and conditions of the Super Game. For more inforamtion reference to documents at __termsLink__`
+    + '\n'
+    + 'This request will not trigger a blockchain transaction or cost any gas fees.\n'
+    + '\n'
+    + 'Wallet address:\n'
+    + `__address__`
+    + '\n'
+    + 'Time:\n'
+    + `__day__.__month__.__year__ __hours__:__minutes__`;
+
 const disabled = computed(() => Boolean(isLoad.value || isSendingEth.value));
+const toShortString = (anyString: string, chars = 3): string => {
+    const start = anyString.slice(0, chars + 2);
+    const end = anyString.slice(-chars);
+    return `${start}...${end}`;
+};
+const onMessage = (
+    template: string,
+    values: {
+        termsLink: string;
+        address: Address;
+    }
+): string => {
+    const date = new Date();
+    const time = {
+        day: date.getUTCDate().toString().padStart(2, '0'),
+        month: (date.getUTCMonth() + 1).toString().padStart(2, '0'),
+        year: date.getUTCFullYear().toString(),
+        hours: date.getUTCHours().toString().padStart(2, '0'),
+        minutes: date.getUTCMinutes().toString().padStart(2, '0')
+    };
+
+    return template
+        .replace('__termsLink__', values.termsLink)
+        .replace('__address__', values.address)
+        .replace('__day__', time.day)
+        .replace('__month__', time.month)
+        .replace('__year__', time.year)
+        .replace('__hours__', time.hours)
+        .replace('__minutes__', time.minutes);
+};
 
 const getJWTTokenXsolla = () => {
     return localStorage.getItem('xsolla_metaframe_token');
@@ -226,6 +292,85 @@ const sendTokens = async (usePaymaster: boolean) => {
     }
     finally {
         isSendingEth.value = false;
+    }
+};
+
+const toSignTypedData = async () => {
+    if (isConnected.value && address.value) {
+        isLoad.value = true;
+        try {
+            const signature = await signTypedData(config, {
+                account: address.value,
+                domain: {
+                    name: 'Super Game',
+                    version: '1',
+                    chainId: 1,
+                    verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC'
+                },
+                types: {
+                    Person: [
+                        { name: 'name', type: 'string' },
+                        { name: 'wallet', type: 'address' }
+                    ],
+                    Mail: [
+                        { name: 'from', type: 'Person' },
+                        { name: 'to', type: 'Person' },
+                        { name: 'contents', type: 'string' }
+                    ]
+                },
+                primaryType: 'Mail',
+                message: {
+                    from: {
+                        name: 'Alice',
+                        wallet: '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826'
+                    },
+                    to: {
+                        name: 'Bob',
+                        wallet: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB'
+                    },
+                    contents: 'Hello, Bob!'
+                }
+            });
+            message.success('The message is signed!');
+            result.value = `Signature: ${signature}`;
+            console.log('Signature signMessage:', signature);
+        }
+        catch (e) {
+            message.error('Error Sign Message!');
+            console.warn('Error Sign Message:', e);
+        }
+        finally {
+            isLoad.value = false;
+        }
+    }
+};
+
+const toSignMessage = async () => {
+    if (isConnected.value && address.value) {
+        isLoad.value = true;
+        const messageForSign = onMessage(
+            singMessage,
+            {
+                address: address.value,
+                termsLink: 'https://x.la/bazaar/docs'
+            }
+        );
+        try {
+            const signature = await signMessage(config, {
+                account: address.value,
+                message: messageForSign
+            });
+            result.value = `Signature: ${signature}`;
+            message.success('The message is signed!');
+            console.log('Signature signMessage:', signature);
+        }
+        catch (e) {
+            message.error('Error Sign Message!');
+            console.warn('Error Sign Message:', e);
+        }
+        finally {
+            isLoad.value = false;
+        }
     }
 };
 </script>

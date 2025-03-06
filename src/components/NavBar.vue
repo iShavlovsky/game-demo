@@ -65,6 +65,7 @@
               </template>
               Connect wallet with the session
             </n-button>
+
           </n-flex>
           <div class="display-flex flex-column">
             <n-text v-if="isConnected"
