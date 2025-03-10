@@ -304,8 +304,8 @@ const toSignTypedData = async () => {
                 domain: {
                     name: 'Super Game',
                     version: '1',
-                    chainId: 1,
-                    verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC'
+                    chainId: defaultChain.id,
+                    verifyingContract: address.value
                 },
                 types: {
                     Person: [

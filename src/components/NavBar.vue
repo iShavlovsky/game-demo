@@ -124,7 +124,10 @@ const connectWallet = async (useSession: boolean) => {
         connect({
             connector: zksyncSsoConnector({
                 metadata: {
-                    name: `Super Game token: ${getJWTTokenXsolla()}`
+                    name: `Super Game token`,
+                    configData: {
+                        token: `${getJWTTokenXsolla()}`
+                    }
                 },
                 authServerUrl: authServerURL,
                 ...(useSession
