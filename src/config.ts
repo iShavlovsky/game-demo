@@ -73,8 +73,8 @@ export const config = createConfig({
         zksyncInMemoryNode
     ],
     transports: {
-        // [xsollaZkChain.id]: http('https://zkrpc.xsollazk.com'),
-        [xsollaZkChain.id]: http('https://zkrpc-anvil.xsollazk.com'),
+        [xsollaZkChain.id]: http('https://zkrpc.xsollazk.com'),
+        // [xsollaZkChain.id]: http('https://zkrpc-anvil.xsollazk.com'),
         [zksyncInMemoryNode.id]: http(),
         [zksyncSepoliaTestnet.id]: http()
     },
