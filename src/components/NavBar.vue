@@ -25,7 +25,18 @@
                    color="#92FE75" />
             Open wallet
           </a>
-
+          <n-button v-if="isConnected"
+                    :loading="isConnectPending"
+                    class="connect-wallet-green"
+                    @click="openWalletAndSendJwt()"
+          >
+            <template #icon>
+              <NIcon :component="Unlink"
+                     :depth="1"
+                     color="#92FE75" />
+            </template>
+            Open wallet 2
+          </n-button>
           <n-button v-if="isConnected"
                     :loading="isConnectPending"
                     class="connect-wallet-green"
@@ -95,6 +106,7 @@ import { useAccount, useConnect, useDisconnect } from '@wagmi/vue';
 import { NIcon, useMessage } from 'naive-ui';
 import { parseEther } from 'viem';
 import { onMounted } from 'vue';
+import { PopupCommunicator } from 'zksync-sso/communicator';
 import { zksyncSsoConnector } from 'zksync-sso/connector';
 
 import Balance from '@/components/Balance.vue';
@@ -110,9 +122,36 @@ const message = useMessage();
 
 const authServerURL = import.meta.env.VITE_AUTH_SERVER_URL;
 
-const getJWTTokenXsolla = () => {
+const JWTTokenXsolla = () => {
     return localStorage.getItem('xsolla_metaframe_token'); ;
 };
+
+const communicator = new PopupCommunicator(authServerURL);
+
+async function openWalletAndSendJwt() {
+    communicator.openPopup();
+    await communicator.ready();
+
+    const message = {
+        id: crypto.randomUUID(),
+        content: {
+            action: {
+                id: crypto.randomUUID(),
+                method: 'open_wallet',
+                params: {
+                    metadata: {
+                        name: `Super Game token`,
+                        configData: {
+                            token: `${JWTTokenXsolla()}`
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    await communicator.postRequestAndWaitForResponse(message);
+}
 
 const connectWallet = async (useSession: boolean) => {
     // const token = getJWTTokenXsolla();
@@ -126,7 +165,7 @@ const connectWallet = async (useSession: boolean) => {
                 metadata: {
                     name: `Super Game token`,
                     configData: {
-                        token: `${getJWTTokenXsolla()}`
+                        token: `${JWTTokenXsolla()}`
                     }
                 },
                 authServerUrl: authServerURL,
@@ -157,7 +196,7 @@ const connectWallet = async (useSession: boolean) => {
 };
 
 onMounted(() => {
-    getJWTTokenXsolla();
+    JWTTokenXsolla();
 });
 
 </script>
