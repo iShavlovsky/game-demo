@@ -55,7 +55,7 @@
 
             <n-button :loading="isConnectPending"
                       class="connect-wallet-green"
-                      @click="connectWallet(false)"
+                      @click="connectWallet"
                       round>
               <template #icon>
                 <NIcon :component="WalletOutline"
@@ -67,7 +67,7 @@
 
             <n-button :loading="isConnectPending"
                       class="connect-wallet-green"
-                      @click="connectWallet(true)"
+                      @click="connectWallet"
                       round>
               <template #icon>
                 <NIcon :component="WalletOutline"
@@ -104,18 +104,14 @@
 import { GameControllerOutline, Unlink, WalletOutline } from '@vicons/ionicons5';
 import { useAccount, useConnect, useDisconnect } from '@wagmi/vue';
 import { NIcon, useMessage } from 'naive-ui';
-import { parseEther } from 'viem';
 import { onMounted } from 'vue';
 import { PopupCommunicator } from 'zksync-sso/communicator';
-import { zksyncSsoConnector } from 'zksync-sso/connector';
 
 import Balance from '@/components/Balance.vue';
-import { useMetaframe } from '@/composables/useMetaframe.ts';
-import { defaultChainId } from '@/config.ts';
+import { defaultChainId, zksyncConnector } from '@/config.ts';
 import { useMainStore } from '@/stores';
-const metaframe = useMetaframe();
 const store = useMainStore();
-const { connect, isPending: isConnectPending } = useConnect();
+const { data, connect, isPending: isConnectPending } = useConnect();
 const { disconnect } = useDisconnect();
 const { isConnected, address, chain } = useAccount();
 const message = useMessage();
@@ -123,7 +119,7 @@ const message = useMessage();
 const authServerURL = import.meta.env.VITE_AUTH_SERVER_URL;
 
 const JWTTokenXsolla = () => {
-    return localStorage.getItem('xsolla_metaframe_token'); ;
+    return localStorage.getItem('xsolla_metaframe_token');
 };
 
 const communicator = new PopupCommunicator(authServerURL);
@@ -132,7 +128,7 @@ async function openWalletAndSendJwt() {
     communicator.openPopup();
     await communicator.ready();
 
-    const message = {
+    const messageToWallet = {
         id: crypto.randomUUID(),
         content: {
             action: {
@@ -150,10 +146,10 @@ async function openWalletAndSendJwt() {
         }
     };
 
-    await communicator.postRequestAndWaitForResponse(message);
+    await communicator.postRequestAndWaitForResponse(messageToWallet);
 }
 
-const connectWallet = async (useSession: boolean) => {
+const connectWallet = async () => {
     // const token = getJWTTokenXsolla();
     // if (!token) {
     //     message.error('Not connected.');
@@ -161,32 +157,10 @@ const connectWallet = async (useSession: boolean) => {
     // }
     try {
         connect({
-            connector: zksyncSsoConnector({
-                metadata: {
-                    name: `Super Game token`,
-                    configData: {
-                        token: `${JWTTokenXsolla()}`
-                    }
-                },
-                authServerUrl: authServerURL,
-                ...(useSession
-                    ? {
-                            session: {
-                                expiry: '5 min',
-                                feeLimit: parseEther('0.1'),
-                                transfers: [
-                                    {
-                                        to: '0x55bE1B079b53962746B2e86d12f158a41DF294A6',
-                                        valueLimit: parseEther('0.1')
-                                    }
-                                ]
-                            }
-                        }
-                    : undefined)
-
-            }),
+            connector: zksyncConnector,
             chainId: defaultChainId
         });
+        console.log(data);
         message.success('Connect to wallet.');
     }
     catch (error) {
@@ -194,7 +168,6 @@ const connectWallet = async (useSession: boolean) => {
         console.error('Connection failed:', error);
     }
 };
-
 onMounted(() => {
     JWTTokenXsolla();
 });
