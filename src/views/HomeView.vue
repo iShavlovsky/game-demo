@@ -72,6 +72,18 @@
             Send Me {{value}} ETH to: {{address}}
           </n-button>
         </n-flex>
+
+        <n-flex  v-if="isConnected && address"
+                 vertical
+                 justify="start">
+
+          <n-button type='default'
+                    :disabled="disabled"
+                    :style="{ width: 'auto', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }"
+                    @click="addValidationKeyWrite">
+            addValidationKeyWrite
+          </n-button>
+        </n-flex>
         <n-result v-if="result && isConnected && address"
                   :style="{ width: 'auto', overflow: 'hidden', wordWrap: 'break-word' }"
                   status="success"
@@ -96,14 +108,17 @@
 </template>
 <script lang="ts" setup>
 import { Chatbubbles } from '@vicons/ionicons5';
-import { sendTransaction, signMessage, signTypedData, waitForTransactionReceipt } from '@wagmi/core';
+import { sendTransaction, signMessage, signTypedData, waitForTransactionReceipt, writeContract } from '@wagmi/core';
 import { useAccount } from '@wagmi/vue';
 import { NIcon, useMessage } from 'naive-ui';
-import { type Address, createWalletClient, type Hash, http, parseEther } from 'viem';
+import { type Address, createWalletClient, type Hash, type Hex, http, parseEther, toHex } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { getGeneralPaymasterInput } from 'viem/zksync';
+import { registerNewPasskey } from 'zksync-sso/client/passkey';
+import { getPublicKeyBytesFromPasskeySignature } from 'zksync-sso/utils';
 
-import { config, defaultChain } from '@/config.ts';
+import { webAuthValidatorAbi } from '@/assets/abi';
+import { config, contractsByChain, defaultChain, defaultChainId } from '@/config.ts';
 const testTransferTarget = ref<Address | null>('0x55bE1B079b53962746B2e86d12f158a41DF294A6');
 const value = ref<number>(0.1);
 const isLoad = ref<boolean>(false);
@@ -132,6 +147,58 @@ const toShortString = (anyString: string, chars = 3): string => {
     const end = anyString.slice(-chars);
     return `${start}...${end}`;
 };
+
+const passkeyName = 'passkey_test_addValidationKey';
+
+const _registerPasskey = async (passkeyName: string) => registerNewPasskey({
+    userName: passkeyName,
+    userDisplayName: passkeyName
+});
+
+const credentialId_hex = '0x4654553842536977726e475f6d43524b777233356c497477494c4a5f4c636a4b6d764b633156325636784d';
+const publicKey = [
+    '0xb5d6caf39310e32bcca707ed53587cdb82a3ccd7042164002b20130e7c67fe1b',
+    '0x82e828bffa7a3ab2e1db49ee37fadff14778b686c24e6f4adf4b6ac9bc77bb81'
+];
+const addValidationKeyWrite = async () => {
+    // const { credentialPublicKey, credentialId } = await _registerPasskey(passkeyName);
+    //
+    // console.log(
+    //     'credentialPublicKey:',
+    //     credentialPublicKey,
+    //     'credentialId:',
+    //     credentialId);
+    // const passkeyPublicKey = getPublicKeyBytesFromPasskeySignature(credentialPublicKey);
+    //
+
+    // const publicKey: [Hex, Hex] = [toHex((passkeyPublicKey[0])), toHex((passkeyPublicKey[1]))];
+    console.log(
+        'publicKey:',
+        publicKey);
+
+    const domain = 'https://xsollazk.com/wallet-demo-api/';
+    console.log(
+        'domain:',
+        domain);
+
+    const transactionHash = await writeContract(config, {
+        address: contractsByChain[defaultChainId].passkey,
+        abi: webAuthValidatorAbi,
+        functionName: 'addValidationKey',
+        args: [credentialId_hex, publicKey, domain]
+    });
+    console.log('addValidationKey Tx:', transactionHash);
+
+    const transactionReceipt = await waitForTransactionReceipt(config, { hash: transactionHash });
+    if (transactionReceipt.status === 'reverted') {
+        throw new Error('Transaction reverted');
+    }
+    if (transactionReceipt.status === 'success') {
+        message.success('Transaction success.');
+        result.value = `addValidationKey Tx: ${transactionHash}`;
+    }
+};
+
 const onMessage = (
     template: string,
     values: {
