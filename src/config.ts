@@ -22,7 +22,7 @@ export const xsollaZkChain = defineChain({
     },
     rpcUrls: {
         default: {
-            http: ['https://zkrpc-anvil.xsollazk.com']
+            http: ['https://zkrpc.xsollazk.com']
         }
     },
     blockExplorers: {
