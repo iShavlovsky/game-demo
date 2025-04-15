@@ -153,6 +153,12 @@ const passkeyName = 'passkey_test_addValidationKey';
 const _registerPasskey = async (passkeyName: string) => registerNewPasskey({
     userName: passkeyName,
     userDisplayName: passkeyName
+    // authenticatorSelection: {
+    //     authenticatorAttachment: 'platform',
+    //     residentKey: 'required',
+    //     userVerification: 'preferred'
+    // },
+    // supportedAlgorithmIDs: [-7]
 });
 
 const credentialId_hex = '0x4654553842536977726e475f6d43524b777233356c497477494c4a5f4c636a4b6d764b633156325636784d';
@@ -162,7 +168,7 @@ const publicKey: [Hex, Hex] = [
 ];
 const addValidationKeyWrite = async () => {
     // const { credentialPublicKey, credentialId } = await _registerPasskey(passkeyName);
-    //
+    // const credentialId_hex = toHex(credentialId);
     // console.log(
     //     'credentialPublicKey:',
     //     credentialPublicKey,
@@ -170,7 +176,6 @@ const addValidationKeyWrite = async () => {
     //     credentialId);
     // const passkeyPublicKey = getPublicKeyBytesFromPasskeySignature(credentialPublicKey);
     //
-
     // const publicKey: [Hex, Hex] = [toHex((passkeyPublicKey[0])), toHex((passkeyPublicKey[1]))];
     console.log(
         'publicKey:',
