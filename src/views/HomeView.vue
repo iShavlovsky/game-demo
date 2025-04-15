@@ -156,7 +156,7 @@ const _registerPasskey = async (passkeyName: string) => registerNewPasskey({
 });
 
 const credentialId_hex = '0x4654553842536977726e475f6d43524b777233356c497477494c4a5f4c636a4b6d764b633156325636784d';
-const publicKey = [
+const publicKey: [Hex, Hex] = [
     '0xb5d6caf39310e32bcca707ed53587cdb82a3ccd7042164002b20130e7c67fe1b',
     '0x82e828bffa7a3ab2e1db49ee37fadff14778b686c24e6f4adf4b6ac9bc77bb81'
 ];
